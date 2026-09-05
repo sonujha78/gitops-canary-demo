@@ -1,0 +1,22 @@
+=== Drift Correction Test - Sun Sep  6 12:35:23 AM IST 2026 ===
+
+Initial state (Git-defined replicas=1):
+NAME                       READY   STATUS    RESTARTS   AGE
+podinfo-6f6f7c774c-tm6kh   1/1     Running   0          4m45s
+
+--- Manual drift injected: kubectl scale --replicas=5 ---
+deployment.apps/podinfo scaled
+NAME                       READY   STATUS              RESTARTS   AGE
+podinfo-6f6f7c774c-2pwpz   0/1     ContainerCreating   0          0s
+podinfo-6f6f7c774c-bq6qq   0/1     ContainerCreating   0          0s
+podinfo-6f6f7c774c-mthzd   0/1     ContainerCreating   0          0s
+podinfo-6f6f7c774c-nklpd   0/1     ContainerCreating   0          0s
+podinfo-6f6f7c774c-tm6kh   1/1     Running             0          4m45s
+
+--- Waiting 20s for ArgoCD self-heal ---
+
+After ArgoCD auto-revert (back to Git truth):
+NAME                       READY   STATUS    RESTARTS   AGE
+podinfo-6f6f7c774c-tm6kh   1/1     Running   0          5m5s
+NAME          SYNC STATUS   HEALTH STATUS
+podinfo-dev   Synced        Healthy
