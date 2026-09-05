@@ -13,10 +13,9 @@ spec:
     port: 9898
     targetPort: 9898
     gateways:
-      - public-gateway.istio-system.svc.cluster.local
       - mesh
     hosts:
-      - "*"
+      - podinfo.production.svc.cluster.local
   analysis:
     interval: 15s
     threshold: 5
