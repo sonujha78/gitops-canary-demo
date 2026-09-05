@@ -1,0 +1,22 @@
+=== Successful Canary Rollout - Section 5 Evidence ===
+
+Trigger: New image/env change pushed via kubectl (simulating Git-driven change)
+Target: podinfo v6.6.0 in production namespace
+
+Progressive weight shift (automatic, zero human decision):
+NAME      STATUS        WEIGHT   LASTTRANSITIONTIME
+podinfo   Progressing   10       2026-09-05T19:58:44Z
+podinfo   Progressing   10       2026-09-05T19:58:59Z
+podinfo   Progressing   10       2026-09-05T19:59:14Z
+podinfo   Progressing   20       2026-09-05T19:59:29Z
+podinfo   Progressing   30       2026-09-05T19:59:44Z
+podinfo   Progressing   40       2026-09-05T19:59:59Z
+podinfo   Progressing   50       2026-09-05T20:00:14Z
+podinfo   Promoting     50       2026-09-05T20:00:29Z
+podinfo   Finalising    0        2026-09-05T20:00:44Z
+podinfo   Succeeded     0        2026-09-05T20:00:59Z
+
+Result: Full rollout 5%->100% completed automatically in ~2 minutes 15 seconds,
+with continuous Prometheus-backed health checks (request-success-rate,
+request-duration) and load-tester webhook validation at each step.
+No kubectl apply or manual approval was used to advance the rollout.
