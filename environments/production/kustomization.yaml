@@ -11,3 +11,6 @@ patches:
       - op: replace
         path: /spec/replicas
         value: 3
+images:
+  - name: ghcr.io/stefanprodan/podinfo
+    newTag: 6.5.4
