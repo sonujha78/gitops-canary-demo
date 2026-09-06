@@ -17,8 +17,7 @@ patches:
           - ./podinfo
           - --port=9898
           - --level=info
-          - --error-rate=30
-          - --delay=2s
+          - --random-error
 images:
   - name: ghcr.io/stefanprodan/podinfo
     newTag: 6.6.0
