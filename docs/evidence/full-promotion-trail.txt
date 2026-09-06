@@ -1,0 +1,43 @@
+=== Complete Dev -> Staging -> Production Promotion Trail - Section 7 ===
+
+1. PR #1: Promote dev replicas to 2 (branch: promote-podinfo-v2-to-dev)
+   Merged into main, ArgoCD auto-synced podinfo-dev, 2 pods deployed
+
+2. PR #2: Promote staging replicas to 3 (branch: promote-podinfo-v2-to-staging)
+   Merged into main, ArgoCD auto-synced podinfo-staging, 3 pods deployed
+
+3. Production: podinfo v6.6.0 promoted via earlier canary rollout commits.
+   Verified clean, stable state after canary reset:
+NAME      STATUS        WEIGHT   LASTTRANSITIONTIME
+podinfo   Initialized   0        2026-09-06T05:08:36Z
+NAME                                  READY   STATUS    RESTARTS   AGE
+flagger-loadtester-68d4bc447c-jzxfk   2/2     Running   0          9h
+podinfo-primary-8467d45654-4zvrc      2/2     Running   0          2m27s
+podinfo-primary-8467d45654-pcnvd      2/2     Running   0          2m27s
+podinfo-primary-8467d45654-zcgsc      2/2     Running   0          2m27s
+
+Full git commit history showing the audit trail:
+* 9997233 Ignore kubeseal binary artifacts
+* 412c0b5 Evidence: PR-based promotion to staging (Section 7 - dev to staging trail)
+*   1d56416 Merge pull request #2 from sonujha78/promote-podinfo-v2-to-staging
+|\  
+| * 25b112d Promote: bump staging replicas to 3 for testing
+|/  
+* 567c350 Evidence: PR-based promotion to dev triggers automatic ArgoCD sync (Section 7)
+*   d4c8783 Merge pull request #1 from sonujha78/promote-podinfo-v2-to-dev
+|\  
+| * 86838fe Promote: bump dev replicas to 2 for testing
+|/  
+* a514e93 Evidence: multi-environment ArgoCD Applications (Section 7)
+* d453377 Ignore Service selector/ports diff too - Flagger manages this for traffic routing
+* 5279f04 Extend ignoreDifferences to prevent ArgoCD/Flagger fighting over image and command
+* 90c31d9 Fix: move sealed secret to production-only overlay via nested kustomization
+* 0008155 Phase 11: ArgoCD Application for staging environment
+* c48af66 Evidence: Sealed Secrets encryption/decryption flow verified (Section 6)
+* 493df26 Phase 10: Wire sealed secret into base kustomization
+* fd94187 Phase 10: Add sealed secret for podinfo API key (GitOps-compliant)
+* ea9118f Evidence: automatic canary rollback on failure injection (Section 4) - full describe output included
+* d17959a Fix: use valid --random-error flag (error-rate flag does not exist in podinfo)
+* e5d1199 Phase 9: Inject broken version (30% error rate + 2s delay) for failure test
+* 994f296 Evidence: successful automated canary rollout (Section 5)
+* 115643a Add Flagger load-tester manifests for canary webhook checks
