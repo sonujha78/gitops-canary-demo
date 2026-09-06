@@ -1,0 +1,15 @@
+=== Multi-Environment ArgoCD Applications - Section 7 Evidence ===
+
+NAME                 SYNC STATUS   HEALTH STATUS
+podinfo-dev          Synced        Healthy
+podinfo-production   Synced        Healthy
+podinfo-staging      Synced        Healthy
+
+Each environment maps to a Kustomize overlay:
+  podinfo-dev        -> environments/dev        -> namespace: dev
+  podinfo-staging    -> environments/staging     -> namespace: staging
+  podinfo-production -> environments/production  -> namespace: production
+
+All applications use automated sync + selfHeal, meaning a merged PR
+into any environment folder triggers deployment automatically -
+no manual kubectl apply or ArgoCD UI click required.
