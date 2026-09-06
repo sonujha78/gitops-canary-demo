@@ -1,0 +1,27 @@
+=== PR-based GitOps Promotion: Staging - Section 7 Evidence ===
+
+PR: 'Promote: bump staging replicas to 3'
+Branch: promote-podinfo-v2-to-staging -> main
+
+Git history:
+1d56416 Merge pull request #2 from sonujha78/promote-podinfo-v2-to-staging
+25b112d Promote: bump staging replicas to 3 for testing
+567c350 Evidence: PR-based promotion to dev triggers automatic ArgoCD sync (Section 7)
+d4c8783 Merge pull request #1 from sonujha78/promote-podinfo-v2-to-dev
+86838fe Promote: bump dev replicas to 2 for testing
+
+Change merged into environments/staging/kustomization.yaml
+
+ArgoCD Application status after merge:
+NAME              SYNC STATUS   HEALTH STATUS
+podinfo-staging   Synced        Healthy
+
+Pods in staging namespace (proof of automatic deployment via GitOps):
+NAME                       READY   STATUS    RESTARTS   AGE
+podinfo-6f6f7c774c-4sd4j   1/1     Running   0          30m
+podinfo-6f6f7c774c-nnmqn   1/1     Running   0          48s
+podinfo-6f6f7c774c-zw2rp   1/1     Running   0          30m
+
+Result: merging a pull request into environments/staging triggered
+an automatic deployment via ArgoCD. This completes the dev -> staging
+promotion step of the audit trail. No human ran kubectl apply.
