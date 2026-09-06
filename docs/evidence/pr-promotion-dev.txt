@@ -1,0 +1,27 @@
+=== PR-based GitOps Promotion - Section 7 Evidence ===
+
+PR #1: 'Promote: bump dev replicas to 2'
+Branch: promote-podinfo-v2-to-dev -> main
+Merge commit: d4c8783
+
+Git history:
+d4c8783 Merge pull request #1 from sonujha78/promote-podinfo-v2-to-dev
+86838fe Promote: bump dev replicas to 2 for testing
+a514e93 Evidence: multi-environment ArgoCD Applications (Section 7)
+d453377 Ignore Service selector/ports diff too - Flagger manages this for traffic routing
+5279f04 Extend ignoreDifferences to prevent ArgoCD/Flagger fighting over image and command
+
+Change merged into environments/dev/kustomization.yaml (replicas 1 -> 2)
+
+ArgoCD Application status after merge:
+NAME          SYNC STATUS   HEALTH STATUS
+podinfo-dev   Synced        Healthy
+
+Pods in dev namespace (proof of automatic deployment via GitOps):
+NAME                       READY   STATUS    RESTARTS   AGE
+podinfo-6f6f7c774c-m8q28   1/1     Running   0          46s
+podinfo-6f6f7c774c-tm6kh   1/1     Running   0          9h
+
+Result: merging a pull request into environments/dev triggered an
+automatic deployment via ArgoCD. No kubectl apply was run by a human
+to deploy this change - only the git push/PR merge.
