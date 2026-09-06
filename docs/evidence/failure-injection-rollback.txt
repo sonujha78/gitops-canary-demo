@@ -1,0 +1,60 @@
+=== Failure Injection Test - Section 4 Evidence ===
+
+Trigger: Deployed podinfo with --random-error flag (~33% of requests return HTTP 500)
+Target: podinfo v6.6.0 in production namespace
+
+Canary weight progression (automatic detection + rollback, zero human intervention):
+NAME      STATUS        WEIGHT   LASTTRANSITIONTIME
+podinfo   Progressing   0        2026-09-06T03:53:21Z
+podinfo   Progressing   0        2026-09-06T04:05:06Z
+podinfo   Progressing   10       2026-09-06T04:05:51Z
+podinfo   Progressing   10       2026-09-06T04:06:06Z
+podinfo   Progressing   10       2026-09-06T04:06:51Z
+podinfo   Progressing   10       2026-09-06T04:07:06Z
+podinfo   Progressing   10       2026-09-06T04:07:21Z
+podinfo   Progressing   10       2026-09-06T04:07:36Z
+podinfo   Failed        0        2026-09-06T04:07:51Z
+podinfo   Failed        0        2026-09-06T04:08:06Z
+
+Post-rollback verification:
+NAME                                  READY   STATUS    RESTARTS   AGE
+flagger-loadtester-68d4bc447c-jzxfk   2/2     Running   0          8h
+podinfo-primary-7bff465f55-22f77      2/2     Running   0          8h
+podinfo-primary-7bff465f55-gxrq6      2/2     Running   0          8h
+podinfo-primary-7bff465f55-ps64c      2/2     Running   0          8h
+
+VirtualService traffic split after rollback (100% back on stable primary):
+  http:
+  - route:
+    - destination:
+        host: podinfo-primary
+      weight: 100
+    - destination:
+        host: podinfo-canary
+      weight: 0
+
+Flagger controller events (chronological):
+  Warning  Synced  8h                    flagger  podinfo-primary.production not ready: waiting for rollout to finish: observed deployment generation less than desired generation
+  Normal   Synced  8h                    flagger  Initialization done! podinfo.production
+  Normal   Synced  8h (x2 over 8h)       flagger  all the metrics providers are available!
+  Warning  Synced  8h (x2 over 8h)       flagger  Halt advancement no values found for istio metric request-success-rate probably podinfo.production is not receiving traffic: running query failed: no values found
+  Normal   Synced  8h                    flagger  Advance podinfo.production canary weight 20
+  Normal   Synced  8h                    flagger  Advance podinfo.production canary weight 30
+  Normal   Synced  8h                    flagger  Advance podinfo.production canary weight 40
+  Normal   Synced  8h                    flagger  Advance podinfo.production canary weight 50
+  Normal   Synced  8h (x3 over 8h)       flagger  (combined from similar events): Promotion completed! Scaling down podinfo.production
+  Normal   Synced  15m (x2 over 8h)      flagger  New revision detected! Scaling up podinfo.production
+  Warning  Synced  8m59s (x27 over 15m)  flagger  canary deployment podinfo.production not ready: waiting for rollout to finish: 1 out of 3 new replicas have been updated
+  Normal   Synced  3m59s                 flagger  New revision detected! Restarting analysis for podinfo.production
+  Warning  Synced  3m44s                 flagger  canary deployment podinfo.production not ready: waiting for rollout to finish: 1 old replicas are pending termination
+  Normal   Synced  3m14s (x2 over 8h)    flagger  Advance podinfo.production canary weight 10
+  Normal   Synced  3m14s (x2 over 8h)    flagger  Starting canary analysis for podinfo.production
+  Phase:                   Failed
+
+Result: Flagger halted the rollout at 10% traffic weight after detecting
+degraded request-success-rate (Prometheus-backed metric, threshold: min 99%).
+After consecutive failed checks exceeded the configured threshold, Flagger
+automatically shifted 100% of traffic back to the last known-good version
+(podinfo-primary) with zero human decision or kubectl intervention. The only
+human action was the original git push that introduced the broken
+--random-error version.
