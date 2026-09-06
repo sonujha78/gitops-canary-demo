@@ -11,6 +11,14 @@ patches:
       - op: replace
         path: /spec/replicas
         value: 3
+      - op: replace
+        path: /spec/template/spec/containers/0/command
+        value:
+          - ./podinfo
+          - --port=9898
+          - --level=info
+          - --error-rate=30
+          - --delay=2s
 images:
   - name: ghcr.io/stefanprodan/podinfo
     newTag: 6.6.0
