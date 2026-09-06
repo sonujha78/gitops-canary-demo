@@ -26,3 +26,9 @@ spec:
         - /spec/replicas
         - /spec/template/spec/containers/0/image
         - /spec/template/spec/containers/0/command
+    - group: ""
+      kind: Service
+      name: podinfo
+      jsonPointers:
+        - /spec/selector
+        - /spec/ports
